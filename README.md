@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3407965.svg)](https://doi.org/10.5281/zenodo.3407965)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3459238.svg)](https://doi.org/10.5281/zenodo.3459238)
 
 # mbend: An R package for bending non-positive-definite matrices to positive-definite
 
