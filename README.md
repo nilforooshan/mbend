@@ -6,7 +6,7 @@ Mohammad Ali Nilforooshan
 
 <div itemscope itemtype="https://schema.org/Person"><a itemprop="sameAs" content="https://orcid.org/0000-0003-0339-5442" href="https://orcid.org/0000-0003-0339-5442" target="orcid.widget" rel="noopener noreferrer" style="vertical-align:top;"><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon">https://orcid.org/0000-0003-0339-5442</a></div>
 
-*14 September 2019*
+*24 September 2019*
 
 ### Installation
 
@@ -20,7 +20,7 @@ Alternatively:
 ```r
 path = "https://github.com/nilforooshan/Link-resources/raw/master/Resources/"
 installer = file.path(tempdir(), "mbend.tar.gz")
-download.file(paste0(path, "mbend_1.0.0.tar.gz"), destfile=installer)
+download.file(paste0(path, "mbend_1.1.0.tar.gz"), destfile=installer)
 install.packages(installer, repos=NULL, type='source')
 ```
 
@@ -53,7 +53,7 @@ W = matrix(nrow=5, ncol=5, c( # matrix of weights
     20,  500, 1000,   20,   20,
     50,    5,   20, 1000,  200,
    200,   50,   20,  200, 1000))
-bend(inmat=V, wtmat=W, reciprocal=TRUE)
+bend(inmat=V, wtmat=W, reciprocal=TRUE, method="hj")
 # Iteration = 100
 # Iteration = 200
 # Iteration = 300
@@ -67,7 +67,7 @@ bend(inmat=V, wtmat=W, reciprocal=TRUE)
 # [5,]  39.18292  45.84555  73.13431  94.23170 100.17942
 ```
 
-Please note that the default parameters `max.iter = 10000, small.positive = 0.0001` could be omitted. Comparing the results with unweighted bending:
+Please note that the default parameters `max.iter = 10000, small.positive = 0.0001, method = "hj"` could be omitted (`"hj"` refers to Jorjani et al., 2003). Comparing the results with unweighted bending:
 
 ```r
 bend(V)
@@ -114,6 +114,40 @@ bend(V, W2, reciprocal=TRUE)
 # [5,]  39.12852  46.15038  72.91450  94.21299 100.18322
 ```
 
+Bending `V` using the method of Schaeffer et al. (2010):
+
+```r
+bend(inmat=V, method="lrs")
+# Adopted from: Schaeffer, L. R. 2010. Modification of negative eigenvalues to create
+# positive definite matrices and approximation of standard errors of correlation estimates.
+# http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf
+# NOTE: Only inmat object is used.
+#           [,1]      [,2]      [,3]      [,4]      [,5]
+# [1,] 103.18978  90.82704  79.43676  44.56754  37.06769
+# [2,]  90.82704 106.54177  94.13680  74.06295  44.56754
+# [3,]  79.43676  94.13680 102.46429  94.13680  79.43676
+# [4,]  44.56754  74.06295  94.13680 106.54177  90.82704
+# [5,]  37.06769  44.56754  79.43676  90.82704 103.18978
+```
+
+Bending a correlation matrix using the method of Schaeffer et al. (2010):
+
+```r
+bend(V2, method="lrs")
+# Adopted from: Schaeffer, L. R. 2010. Modification of negative eigenvalues to create
+# positive definite matrices and approximation of standard errors of correlation estimates.
+# http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf
+# NOTE: Only inmat object is used.
+#           [,1]      [,2]      [,3]      [,4]      [,5]
+# [1,] 1.0000000 0.8662538 0.7725825 0.4250424 0.3592246
+# [2,] 0.8662538 1.0000000 0.9010447 0.6951724 0.4250424
+# [3,] 0.7725825 0.9010447 1.0000000 0.9010447 0.7725825
+# [4,] 0.4250424 0.6951724 0.9010447 1.0000000 0.8662538
+# [5,] 0.3592246 0.4250424 0.7725825 0.8662538 1.0000000
+```
+
 ## References
 
 Jorjani, H., Klie. L., & Emanuelson, U. (2000). A simple method for weighted bending of genetic (co)variance matrices. *J. Dairy Sci. 86(2)*: 677–679. doi:[10.3168/jds.S0022-0302(03)73646-7](https://doi.org/10.3168/jds.S0022-0302(03)73646-7)
+
+Schaeffer, L. R. 2010. Modification of negative eigenvalues to create positive definite matrices and approximation of standard errors of correlation estimates. Available at: http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf

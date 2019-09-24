@@ -10,24 +10,30 @@
 #' (Co)variance or correlation matrices are required in multivariate mixed models. For example, in multi-trait animal models, genetic and residual (co)variance matrices are required, involving the traits of interest. These matrices need to be positive definite (PD), mainly because those need to be inverted and non-PD matrices are not invertible. Variance component estimation is computationally expensive, especially for big data and many variables. As a result, the full (co)variance matrix may be assembled by combining smaller (co)variance matrices from variance component estimation analyses on subsets of variables. Possible missing covariances are filled with values from the literature or the best possible guess. Consequently, the assembled matrix may not be PD, and it needs to be bended to a PD matrix before being used in the model.
 #'
 #' @details
-#' A method for weighted bending of (co)variance matrices was developed by Jorjani et al. (2003), in which the matrix of interest is decomposed to matrices of eigenvectors and eigenvalues. Iteratively, eigenvalues smaller than a small possitive value (close to 0) are replaced with that small positive value and the matrix is rebuilt, until the convergence is met (i.e., no eigenvalue less than the small positive value). Because there are different amount of data and certainty associated with different elements of the matrix, wighting factors should be involved, which are introduced through a symmetric matrix. Certainty associated with the elements of the matrix and the corresponding weights are inversely related. For example, the reciprocal of the number of common data points (i.e., data points in common between pairs of variables) can be used as weighting factors. Alternatively, number of data points can be used directly by setting the argument \code{reciprocal = TRUE}. To keep specific elements of the matrix unchanged during the bending process, set corresponding weights to 0. Providing no weight matrix is equivalent to unweighted bending. Any (co)variance matrix with all diagonal elements equal to 1 is considered as a correlation matrix by the program.
+#' A method for weighted bending of (co)variance matrices was developed by Jorjani et al. (2003), in which the matrix of interest is decomposed to matrices of eigenvectors and eigenvalues. Iteratively, eigenvalues smaller than a small possitive value (close to 0) are replaced with that small positive value and the matrix is rebuilt, until the convergence is met (i.e., no eigenvalue less than the small positive value). Because there are different amount of data and certainty associated with different elements of the matrix, wighting factors should be involved, which are introduced through a symmetric matrix. Certainty associated with the elements of the matrix and the corresponding weights are inversely related. For example, the reciprocal of the number of common data points (i.e., data points in common between pairs of variables) can be used as weighting factors. Alternatively, number of data points can be used directly by setting the argument \code{reciprocal = TRUE}.
+#' To keep specific elements of the matrix unchanged during the bending process, set corresponding weights to 0. Providing no weight matrix is equivalent to unweighted bending.
+#' Another method implemented in this package is from Schaeffer (2010), which can be defined by using the argument \code{method = "lrs"}. If no method is defined, the default \code{method = "hj"} (Jorjani et al., 2003) is used.
+#' Any (co)variance matrix with all diagonal elements equal to 1 is considered as a correlation matrix by the program.
 #'
 #' @note
-#' 
+#'
 #' \strong{Installation:}
-#' 
+#'
 #' \code{devtools::install_github('nilforooshan/mbend')}
-#' 
+#'
 #' \emph{Alternatively:}
-#' 
+#'
 #' \code{path = "https://github.com/nilforooshan/Link-resources/raw/master/Resources/"}
-#' 
+#'
 #' \code{installer = file.path(tempdir(), "mbend.tar.gz")}
-#' 
-#' \code{download.file(paste0(path, "mbend_1.0.0.tar.gz"), destfile=installer)}
+#'
+#' \code{download.file(paste0(path, "mbend_1.1.0.tar.gz"), destfile=installer)}
 #'
 #' \code{install.packages(installer, repos=NULL, type='source')}
 #'
 #' @references
 #' Jorjani, H., Klei, L., and Emanuelson, U. 2003. A Simple Method for Weighted Bending of Genetic (Co)variance Matrices. J. Dairy Sci., 86:677-679. <doi:10.3168/jds.S0022-0302(03)73646-7>
+#'
+#' Schaeffer, L. R. 2010. Modification of negative eigenvalues to create positive definite matrices and approximation of standard errors of correlation estimates.
+#' Available at: \href{http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf}{Link}
 NULL

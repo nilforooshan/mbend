@@ -1,9 +1,9 @@
 Package: mbend
 Title: Matrix Bending
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: person("Mohammad Ali", "Nilforooshan", email="m.a.nilforooshan@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-0339-5442"))
 Description: A package for bending non-positive-definite matrices ((co)variance and correlation) to positive-definite, using weighted or unweighted methods.
-License: GPL-3
+License: GPL-3 + file LICENSE
 LazyData: true
 URL: https://github.com/nilforooshan/mbend
 BugReports: https://github.com/nilforooshan/mbend/issues

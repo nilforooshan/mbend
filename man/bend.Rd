@@ -5,7 +5,7 @@
 \title{Matrix bending to positive-definite}
 \usage{
 bend(inmat, wtmat, reciprocal = FALSE, max.iter = 10000,
-  small.positive = 1e-04)
+  small.positive = 1e-04, method = "hj")
 }
 \arguments{
 \item{inmat}{: The \code{matrix} to be bended.}
@@ -17,6 +17,8 @@ bend(inmat, wtmat, reciprocal = FALSE, max.iter = 10000,
 \item{max.iter}{: Maximum number of iterations. If no input is provided, default = 10000.}
 
 \item{small.positive}{: A small positive value replacing smaller eigenvalues. If no input is provided, default = 0.0001.}
+
+\item{method}{: \code{"hj"} (Jorjani et al., 2003) or \code{"lrs"} (Schaeffer, 2010), default = \code{"hj"}}
 }
 \value{
 bended : The output bended \code{matrix}.
@@ -41,6 +43,7 @@ W = matrix(nrow=5, ncol=5, c( # matrix of weights
 
 # Example 1: Unweighted bending
 bend(V)
+## The default method (Jojani et al. 2003) is used.
 
 # Example 2: Weighted bending using reciprocal of the weighting factors
 bend(inmat=V, wtmat=W, reciprocal=TRUE)
@@ -53,5 +56,11 @@ bend(inmat=V, wtmat=W2, reciprocal=TRUE)
 # Example 4: Bending a correlation matrix
 V2 = cov2cor(V)
 bend(V2, W, reciprocal=TRUE)
+
+# Example 5: Bending using the method of Schaeffer (2010)
+bend(inmat=V, method="lrs")
+
+# Example 6: Bending a correlation matrix using the method of Schaeffer (2010)
+bend(V2, method="lrs")
 
 }
