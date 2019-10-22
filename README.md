@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3515891.svg)](https://doi.org/10.5281/zenodo.3515891)
+
 # mbend: An R package for bending non-positive-definite matrices to positive-definite
 
 Mohammad Ali Nilforooshan
