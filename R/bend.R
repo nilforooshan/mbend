@@ -53,79 +53,79 @@
 #' # Example 6: Bending a correlation matrix using the method of Schaeffer (2010)
 #' bend(V2, method="lrs")
 #'
+#' # Example 7: Bending the same correlation matrix using a weighted development of Schaeffer (2010)
+#' bend(V2, W, reciprocal=TRUE, method="lrs")
+#'
+#' # Example 8: Bending a covariance matrix using a weighted development of Schaeffer (2010)
+#' bend(V, W, reciprocal=TRUE, method="lrs")
+#'
 #' @export
 bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0.0001, method="hj") {
+  N = nrow(inmat)
   if(!method %in% c("hj","lrs")) stop("ERROR: Use method \"hj\" or \"lrs\".")
-  if(missing(wtmat)) wtmat = matrix(1, nrow=nrow(inmat), ncol=ncol(inmat))
+  if(missing(wtmat)) wtmat = matrix(1, nrow=N, ncol=ncol(inmat))
   if(!is.matrix(inmat)) stop("ERROR: inmat object is not a matrix.")
   if(!isSymmetric(inmat)) stop("ERROR: The matrix is asymmetric.")
   # Check if inmat is a correlation matrix
   correl = FALSE
-  if(identical(diag(inmat), rep(1, dim(inmat)[1]))) correl = TRUE
-  if(method=="hj") {
-    if(!is.matrix(wtmat)) stop("ERROR: wtmat object is not a matrix.")
-    if(!isSymmetric(wtmat)) stop("ERROR: The weight matrix is asymmetric.")
-    if(!identical(ncol(inmat), ncol(wtmat))) stop("ERROR: The matrices are incompatible in size.")
-    if(length(wtmat[wtmat < 0]) > 0) stop("ERROR: Found negative elements in the weight matrix.")
-    if(!is.logical(reciprocal)) stop("ERROR: reciprocal should be a logical variable.")
-    if(small.positive <= 0 | small.positive >= 0.1) stop("ERROR: 0 < small.positive < 0.1 is not met.")
-    if(correl) diag(wtmat) = 0
-    # Get reciprocal of the weighting factors if needed
-    if(reciprocal) {
-      for(i in 1:nrow(wtmat))
+  if(identical(diag(inmat), rep(1, N))) correl = TRUE
+  if(correl) diag(wtmat) = 0
+  if(!is.matrix(wtmat)) stop("ERROR: wtmat object is not a matrix.")
+  if(!isSymmetric(wtmat)) stop("ERROR: The weight matrix is asymmetric.")
+  if(ncol(inmat)!=ncol(wtmat)) stop("ERROR: The matrices are incompatible in size.")
+  if(length(wtmat[wtmat < 0]) > 0) stop("ERROR: Found negative elements in the weight matrix.")
+  if(!is.logical(reciprocal)) stop("ERROR: reciprocal should be a logical variable.")
+  if(small.positive <= 0 | small.positive >= 0.1) stop("ERROR: 0 < small.positive < 0.1 is not met.")
+  # Get reciprocal of the weighting factors if needed
+  if(reciprocal) {
+    for(i in 1:nrow(wtmat))
+    {
+      for(j in 1:ncol(wtmat))
       {
-        for(j in 1:ncol(wtmat))
-        {
-          if(wtmat[i,j]!=0) wtmat[i,j] = 1/wtmat[i,j]
-        }
+        if(wtmat[i,j]!=0) wtmat[i,j] = 1/wtmat[i,j]
       }
     }
-    wtmat = wtmat/max(wtmat)
-    # Start bending
-    bended = inmat
+  }
+  wtmat = wtmat/max(wtmat)
+  bended = inmat
+  eigenval = eigen(bended, symmetric=TRUE)$values
+  eigenvec = eigen(bended, symmetric=TRUE)$vectors
+  if(length(eigenval[eigenval<=0])==0) stop("No action is needed. The matrix is positive-definite.")
+  if(method=="lrs") {
+    message("Source: Schaeffer, L. R. (2010). http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf")
+    message("NOTE: argument small.positive is overwritten.")
+  }
+  m = length(eigenval[eigenval < 0])
+  i = 0
+  while(i < max.iter & m > 0)
+  {
+    # Updating eigenvalues
+    if(method=="hj") {
+      eigenval[eigenval < small.positive] <- small.positive
+    } else { # method="lrs"
+      v = as.numeric(eigenval < 0)
+      S = sum(v*eigenval)*2
+      W = (S*S*100)+1
+      small.positive = eigenval[N - m]
+      k = N - m + 1
+      for(j in k:N) eigenval[j] = small.positive * (S-eigenval[j])*(S-eigenval[j])/W
+      # Make sure that UDtU is PD.
+      UDtU = eigenvec %*% diag(eigenval) %*% t(eigenvec)
+      eigenval = eigen(UDtU, symmetric=TRUE)$values
+      eigenval[eigenval < 0] <- small.positive/10
+    }
+    UDtU = eigenvec %*% diag(eigenval) %*% t(eigenvec)
+    bended = bended - (bended - UDtU) * wtmat
     eigenval = eigen(bended, symmetric=TRUE)$values
     eigenvec = eigen(bended, symmetric=TRUE)$vectors
-    if(length(eigenval[eigenval<=0])==0) stop("No action is needed. The matrix is positive-definite.")
-    i = 0
-    while(i < max.iter & length(eigenval[eigenval < 0]) > 0)
-    {
-      eigenval[eigenval < small.positive] <- small.positive
-      UDtU = eigenvec %*% diag(eigenval) %*% t(eigenvec)
-      bended = bended - (bended - UDtU) * wtmat
-      eigenval = eigen(bended, symmetric=TRUE)$values
-      eigenvec = eigen(bended, symmetric=TRUE)$vectors
-      i = i + 1
-      if(round(i %% 100)==0) message(paste('Iteration =', i))
-    }
-    if(length(eigenval[eigenval<=0]) > 0) {
-      message(paste("WARNING: convergence was not met after", i, "iterations."))
-    } else {
-      message(paste("Convergence met after", i, "iterations."))
-    }
-  } else { # method="lrs"
-    message("Adopted from: Schaeffer, L. R. 2010. Modification of negative eigenvalues to create")
-    message("positive definite matrices and approximation of standard errors of correlation estimates.")
-    message("http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf")
-    message("NOTE: Only inmat object is used.")
-    Q = inmat
-    N = nrow(Q)
-    D = eigen(Q)
-    E = D$values
-    U = D$vectors
-    v = as.numeric(E < 0)
-    m = sum(v) # number of negative values
-    if(m > 0){
-      S = sum(v*E)*2
-      W = (S*S*100)+1
-      P = E[N - m] # smallest positive value
-      k = N - m + 1
-      for(i in k:N){
-        C = E[i]
-        E[i] = P * (S-C)*(S-C)/W
-      }
-      bended = U %*% diag(E) %*% t(U)
-      if(correl) bended = cov2cor(bended)
-    }
+    m = length(eigenval[eigenval < 0])
+    i = i + 1
+    if(round(i %% 100)==0) message(paste('Iteration =', i))
+  }
+  if(length(eigenval[eigenval < 0]) > 0) {
+    message(paste("WARNING: convergence was not met after", i, "iterations."))
+  } else {
+    message(paste("Convergence met after", i, "iterations."))
   }
   return(bended)
 }

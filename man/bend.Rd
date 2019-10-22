@@ -63,4 +63,10 @@ bend(inmat=V, method="lrs")
 # Example 6: Bending a correlation matrix using the method of Schaeffer (2010)
 bend(V2, method="lrs")
 
+# Example 7: Bending the same correlation matrix using a weighted development of Schaeffer (2010)
+bend(V2, W, reciprocal=TRUE, method="lrs")
+
+# Example 8: Bending a covariance matrix using a weighted development of Schaeffer (2010)
+bend(V, W, reciprocal=TRUE, method="lrs")
+
 }
