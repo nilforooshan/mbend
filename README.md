@@ -48,7 +48,7 @@ bend(V)
 
 The above command is equivalent to `bend(inmat=V)`, where `inmat` is the argument that takes the matrix to be bended, or the following command:
 
-```r # eval=FALSE
+```r
 bend(V, max.iter=10000, small.positive=0.0001, method="hj")
 ```
 
