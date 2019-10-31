@@ -8,3 +8,7 @@
 
 * Modified for returning the matrix if it is already positive-definite.
 * Skip other checks if the matrix is already positive-definite.
+
+## Version: 1.2.3
+
+* Set VignetteIndexEntry

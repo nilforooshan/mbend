@@ -1,5 +1,3 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3515891.svg)](https://doi.org/10.5281/zenodo.3515891)
-
 # mbend: An R package for bending non-positive-definite matrices to positive-definite
 
 Mohammad Ali Nilforooshan
@@ -198,4 +196,4 @@ bend(V2, method="lrs")
 
 Jorjani, H., Klie. L., & Emanuelson, U. (2000). A simple method for weighted bending of genetic (co)variance matrices. *J. Dairy Sci.* 86(2): 677--679. [doi:10.3168/jds.S0022-0302(03)73646-7](https://doi.org/10.3168/jds.S0022-0302(03)73646-7)
 
-Schaeffer, L. R. (2010). Modification of negative eigenvalues to create positive definite matrices and approximation of standard errors of correlation estimates. Available at: http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf
+Schaeffer, L. R. (2010). Modification of negative eigenvalues to create positive definite matrices and approximation of standard errors of correlation estimates. Available at: <http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf>
