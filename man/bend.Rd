@@ -4,8 +4,14 @@
 \alias{bend}
 \title{Matrix bending to positive-definite}
 \usage{
-bend(inmat, wtmat, reciprocal = FALSE, max.iter = 10000,
-  small.positive = 1e-04, method = "hj")
+bend(
+  inmat,
+  wtmat,
+  reciprocal = FALSE,
+  max.iter = 10000,
+  small.positive = 1e-04,
+  method = "hj"
+)
 }
 \arguments{
 \item{inmat}{: The \code{matrix} to be bended.}

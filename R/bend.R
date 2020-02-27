@@ -62,18 +62,32 @@
 #' @export
 bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0.0001, method="hj") {
   if(!is.matrix(inmat)) stop("inmat object is not a matrix.")
+  if(!identical(rownames(inmat), colnames(inmat))) stop("rownames and colnames of the input matrix are not identical.")
   if(!isSymmetric(inmat)) stop("The matrix is asymmetric.")
   bended = inmat
   eigenval = eigen(bended, symmetric=TRUE)$values
+  # Report what you've got.
+  if(missing(wtmat)) {
+    message("Unweighted bending")
+  } else {
+    message("Weighted bending")
+    message("reciprocal = ", reciprocal)
+  }
+  message("max.iter = ", max.iter)
+  if(method=="hj") message("small.positive = ", small.positive)
+  message("method = ", method)
+  message("Initial eigenvalues:")
+  for(i in eigenval) message("  ", i)
   if(length(eigenval[eigenval<=0]) > 0) { # If non-PD
     N = nrow(inmat)
     if(missing(wtmat)) {
-      wtmat = matrix(1, nrow=N, ncol=ncol(inmat))
+      wtmat = matrix(1, nrow=N, ncol=N)
     } else {
       if(!is.matrix(wtmat)) stop("wtmat object is not a matrix.")
+      if(!identical(rownames(wtmat), colnames(wtmat))) stop("rownames and colnames of the weight matrix are not identical.")
       if(!isSymmetric(wtmat)) stop("The weight matrix is asymmetric.")
       if(ncol(inmat)!=ncol(wtmat)) stop("The matrices are incompatible in size.")
-      if(length(wtmat[wtmat < 0]) > 0) stop("Found negative elements in the weight matrix.")
+      if(length(wtmat[wtmat <0]) > 0) stop("Found negative elements in the weight matrix.")
     }
     # Check if inmat is a correlation matrix
     correl = FALSE
@@ -94,7 +108,6 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
     if(!method %in% c("hj","lrs")) stop("Use method \"hj\" or \"lrs\".")
     if(method=="lrs") {
       message("Source: Schaeffer, L. R. (2010). http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf")
-      message("NOTE: argument small.positive is overwritten.")
     }
     eigenvec = eigen(bended, symmetric=TRUE)$vectors
     m = length(eigenval[eigenval < 0])
@@ -103,7 +116,16 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
     {
       # Updating eigenvalues
       if(method=="hj") {
-        if(small.positive <= 0 | small.positive >= 0.1) stop("0 < small.positive < 0.1 is not met.")
+        if(small.positive <= 0) stop("small.positive is not positive.")
+        if(i==0) {
+          # If small.positive > smallest positive eigenvalue, replace it.
+          sp.ev = eigenval[eigenval > 0]
+          sp.ev = sp.ev[length(sp.ev)]
+          if(small.positive > sp.ev) {
+            small.positive = sp.ev/10
+            message("small.positive was overwritten by ", small.positive)
+          }
+        }
         eigenval[eigenval < small.positive] <- small.positive
       } else { # method="lrs"
         v = as.numeric(eigenval < 0)
@@ -123,7 +145,7 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
       eigenvec = eigen(bended, symmetric=TRUE)$vectors
       m = length(eigenval[eigenval < 0])
       i = i + 1
-      if(round(i %% 100)==0) message(paste('Iteration =', i))
+      if(round(i %% 1000)==0) message(paste('Iteration =', i))
     }
     if(length(eigenval[eigenval < 0]) > 0) {
       message(paste("WARNING: convergence was not met after", i, "iterations."))
@@ -133,5 +155,23 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
   } else {
     message("No action was required. The matrix is positive-definite.")
   }
+  AD = abs(bended - inmat)
+  minAD = which(AD==min(AD), arr.ind=TRUE)[1,]
+  maxAD = which(AD==max(AD), arr.ind=TRUE)[1,]
+  AD = AD[upper.tri(AD, diag=TRUE)]
+  w = wtmat[upper.tri(wtmat, diag=TRUE)]
+  cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=TRUE)], V2=bended[upper.tri(bended, diag=TRUE)])
+  message("Final eigenvalues:")
+  for(i in eigenval) message("  ", i)
+  message("Minimum absolute deviation = ", min(AD), " [", minAD[1], ",", minAD[2], "]")
+  message("Maximum absolute deviation = ", max(AD), " [", maxAD[1], ",", maxAD[2], "]")
+  message("Upper.tri average absolute deviation = ", mean(AD))
+  message("Upper.tri correlation = ", cor(cor.dat)[1,2])
+  if(any(!w %in% 0:1)) {
+    message(length(w), " Upper.tri elements; for the ", length(w[w>0]), " elements that are not set to constant:")
+    message("  Upper.tri weighted average absolute deviation = ", sum(AD[w>0]/w[w>0])/sum(1/w[w>0]))
+    message("  Upper.tri weighted correlation = ", cov.wt(cor.dat[w>0,], wt=1/w[w>0], cor=TRUE)$cor[1,2])
+  }
   return(bended)
 }
+
