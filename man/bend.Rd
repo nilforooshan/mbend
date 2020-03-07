@@ -24,7 +24,7 @@ bend(
 
 \item{small.positive}{: A small positive value replacing smaller eigenvalues. If no input is provided, default = 0.0001.}
 
-\item{method}{: \code{"hj"} (Jorjani et al., 2003) or \code{"lrs"} (Schaeffer, 2010), default = \code{"hj"}}
+\item{method}{: \code{"hj"} (Jorjani et al., 2003) or \code{"lrs"} (Schaeffer, 2014), default = \code{"hj"}}
 }
 \value{
 bended : The output bended \code{matrix}.
@@ -63,16 +63,16 @@ bend(inmat=V, wtmat=W2, reciprocal=TRUE)
 V2 = cov2cor(V)
 bend(V2, W, reciprocal=TRUE)
 
-# Example 5: Bending using the method of Schaeffer (2010)
+# Example 5: Bending using the method of Schaeffer (2014)
 bend(inmat=V, method="lrs")
 
-# Example 6: Bending a correlation matrix using the method of Schaeffer (2010)
+# Example 6: Bending a correlation matrix using the method of Schaeffer (2014)
 bend(V2, method="lrs")
 
-# Example 7: Bending the same correlation matrix using a weighted development of Schaeffer (2010)
+# Example 7: Bending the same correlation matrix using a weighted development of Schaeffer (2014)
 bend(V2, W, reciprocal=TRUE, method="lrs")
 
-# Example 8: Bending a covariance matrix using a weighted development of Schaeffer (2010)
+# Example 8: Bending a covariance matrix using a weighted development of Schaeffer (2014)
 bend(V, W, reciprocal=TRUE, method="lrs")
 
 }

@@ -17,3 +17,10 @@
 
 * Giving reports and statistics
 * Iteration 1: if `small.positive` is greater than the smallest positive eigenvalue (x), replace it with x/10 and report the user.
+
+## Version: 1.2.5
+
+* Correcting citation Schaeffer (2010) to Schaeffer (2014)
+* Reporting the average and the range of deviations
+* Statistical reports for correlation matrices do not include diagonal elements.
+* Updated README.md for changes in the previous and the current versions.

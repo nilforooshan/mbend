@@ -12,7 +12,7 @@
 #'
 #' @param small.positive : A small positive value replacing smaller eigenvalues. If no input is provided, default = 0.0001.
 #'
-#' @param method : \code{"hj"} (Jorjani et al., 2003) or \code{"lrs"} (Schaeffer, 2010), default = \code{"hj"}
+#' @param method : \code{"hj"} (Jorjani et al., 2003) or \code{"lrs"} (Schaeffer, 2014), default = \code{"hj"}
 #'
 #' @return bended : The output bended \code{matrix}.
 #'
@@ -47,16 +47,16 @@
 #' V2 = cov2cor(V)
 #' bend(V2, W, reciprocal=TRUE)
 #'
-#' # Example 5: Bending using the method of Schaeffer (2010)
+#' # Example 5: Bending using the method of Schaeffer (2014)
 #' bend(inmat=V, method="lrs")
 #'
-#' # Example 6: Bending a correlation matrix using the method of Schaeffer (2010)
+#' # Example 6: Bending a correlation matrix using the method of Schaeffer (2014)
 #' bend(V2, method="lrs")
 #'
-#' # Example 7: Bending the same correlation matrix using a weighted development of Schaeffer (2010)
+#' # Example 7: Bending the same correlation matrix using a weighted development of Schaeffer (2014)
 #' bend(V2, W, reciprocal=TRUE, method="lrs")
 #'
-#' # Example 8: Bending a covariance matrix using a weighted development of Schaeffer (2010)
+#' # Example 8: Bending a covariance matrix using a weighted development of Schaeffer (2014)
 #' bend(V, W, reciprocal=TRUE, method="lrs")
 #'
 #' @export
@@ -76,8 +76,6 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
   message("max.iter = ", max.iter)
   if(method=="hj") message("small.positive = ", small.positive)
   message("method = ", method)
-  message("Initial eigenvalues:")
-  for(i in eigenval) message("  ", i)
   if(length(eigenval[eigenval<=0]) > 0) { # If non-PD
     N = nrow(inmat)
     if(missing(wtmat)) {
@@ -89,10 +87,6 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
       if(ncol(inmat)!=ncol(wtmat)) stop("The matrices are incompatible in size.")
       if(length(wtmat[wtmat <0]) > 0) stop("Found negative elements in the weight matrix.")
     }
-    # Check if inmat is a correlation matrix
-    correl = FALSE
-    if(identical(diag(inmat), rep(1, N))) correl = TRUE
-    if(correl) diag(wtmat) = 0
     if(!is.logical(reciprocal)) stop("reciprocal should be a logical variable.")
     # Get reciprocal of the weighting factors if needed
     if(reciprocal) {
@@ -104,11 +98,17 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
         }
       }
     }
+	# Check if inmat is a correlation matrix
+    correl = FALSE
+    if(identical(diag(inmat), rep(1, N))) {
+	  message("Found a correlation matrix.")
+	  correl = TRUE
+      diag(wtmat) = 0
+	}
+	message("Initial eigenvalues:")
+    for(i in eigenval) message("  ", i)
     wtmat = wtmat/max(wtmat)
     if(!method %in% c("hj","lrs")) stop("Use method \"hj\" or \"lrs\".")
-    if(method=="lrs") {
-      message("Source: Schaeffer, L. R. (2010). http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf")
-    }
     eigenvec = eigen(bended, symmetric=TRUE)$vectors
     m = length(eigenval[eigenval < 0])
     i = 0
@@ -116,14 +116,14 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
     {
       # Updating eigenvalues
       if(method=="hj") {
-        if(small.positive <= 0) stop("small.positive is not positive.")
+        if(small.positive <= 0 | small.positive >= 1) stop("0 < small.positive < 1 is not met.")
         if(i==0) {
           # If small.positive > smallest positive eigenvalue, replace it.
           sp.ev = eigenval[eigenval > 0]
           sp.ev = sp.ev[length(sp.ev)]
           if(small.positive > sp.ev) {
             small.positive = sp.ev/10
-            message("small.positive was overwritten by ", small.positive)
+            message("small.positive was overwritten by the smallest positive eigenvalue ", sp.ev, " divided by 10.")
           }
         }
         eigenval[eigenval < small.positive] <- small.positive
@@ -155,14 +155,26 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
   } else {
     message("No action was required. The matrix is positive-definite.")
   }
-  AD = abs(bended - inmat)
-  minAD = which(AD==min(AD), arr.ind=TRUE)[1,]
-  maxAD = which(AD==max(AD), arr.ind=TRUE)[1,]
-  AD = AD[upper.tri(AD, diag=TRUE)]
-  w = wtmat[upper.tri(wtmat, diag=TRUE)]
-  cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=TRUE)], V2=bended[upper.tri(bended, diag=TRUE)])
   message("Final eigenvalues:")
   for(i in eigenval) message("  ", i)
+  dev = bended - inmat
+  AD = abs(dev)
+  minAD = which(AD==min(AD), arr.ind=TRUE)[1,]
+  maxAD = which(AD==max(AD), arr.ind=TRUE)[1,]
+  if(correl) {
+    dev = dev[upper.tri(dev, diag=FALSE)]
+	AD = AD[upper.tri(AD, diag=FALSE)]
+	w = wtmat[upper.tri(wtmat, diag=FALSE)]
+	cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=FALSE)], V2=bended[upper.tri(bended, diag=FALSE)])
+	message("Statistics excluding diagonal elements:")
+  } else {
+    dev = dev[upper.tri(dev, diag=TRUE)]
+	AD = AD[upper.tri(AD, diag=TRUE)]
+	w = wtmat[upper.tri(wtmat, diag=TRUE)]
+	cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=TRUE)], V2=bended[upper.tri(bended, diag=TRUE)])
+  }
+  message("Range of deviation = ", min(dev), " ", max(dev))
+  message("Upper.tri average deviation = ", mean(dev))
   message("Minimum absolute deviation = ", min(AD), " [", minAD[1], ",", minAD[2], "]")
   message("Maximum absolute deviation = ", max(AD), " [", maxAD[1], ",", maxAD[2], "]")
   message("Upper.tri average absolute deviation = ", mean(AD))
@@ -174,4 +186,3 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
   }
   return(bended)
 }
-

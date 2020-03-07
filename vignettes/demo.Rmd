@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 *Bending non-positive-definite (symmetric) matrices to positive-definite, using weighted and unweighted methods*
 
-The `mbend` package is used for bending a non-positive-definite matrix to a positive-definite (PD) matrix. For a matrix to be invertible, it has to be PD. The methods of Jorjani et al. (2003) and Schaeffer (2010) are used in this package. The unweighted method of Schaeffer (2010) is also extended to weighted bending, with the possibility of choosing between unweighted and weighted bending.
+The `mbend` package is used for bending a non-positive-definite matrix to a positive-definite (PD) matrix. For a matrix to be invertible, it has to be PD. The methods of Jorjani et al. (2003) and Schaeffer (2014) are used in this package. The unweighted method of Schaeffer (2014) is also extended to weighted bending, with the possibility of choosing between unweighted and weighted bending.
 
 ## Application
 
@@ -85,13 +85,15 @@ W2 = W; W2[1:2, 1:2] = 0
 bend(V, W2, reciprocal=TRUE)
 ```
 
-To bend `V` using the method of Schaeffer (2010):
+As it can be seen in the report, 3 of the 15 upper triangle elements are set to constant.
+
+To bend `V` using the method of Schaeffer (2014):
 
 ```{r}
 bend(inmat=V, method="lrs")
 ```
 
-The method of Schaeffer (2010) does not require the argument `small.positive`, and this argument is ignored. This method is originally an unweighted bending method. However, in this package, it is extended to accommodate weighted bending (i.e., a combination of Schaeffer (2010) and Jorjani et al. (2003) methods). Weighted bending of `V` with reciprocals of `W` using the method of Schaeffer (2010):
+The method of Schaeffer (2014) does not require the argument `small.positive`, and this argument is ignored. This method is originally an unweighted bending method. However, in this package, it is extended to accommodate weighted bending (i.e., a combination of Schaeffer (2014) and Jorjani et al. (2003) methods). Weighted bending of `V` with reciprocals of `W` using the method of Schaeffer (2014):
 
 ```{r}
 bend(V, W, reciprocal=TRUE, method="lrs")
@@ -104,13 +106,14 @@ V2 = cov2cor(V)
 bend(V2, W, reciprocal=TRUE)
 ```
 
-Because the argument `method` is not provided, the default parameter `"hj"` is used. To do the same using the method of Schaeffer (2010):
+As indicated above, diagonal elements are not used in the reporting statistics. This happens to correlation matrices.
+Because the argument `method` is not provided, the default parameter `"hj"` is used. To do the same using the method of Schaeffer (2014):
 
 ```{r}
 bend(V2, W, reciprocal=TRUE, method="lrs")
 ```
 
-Bending the same correlation matrix using the unweighted Schaeffer (2010):
+Bending the same correlation matrix using the unweighted Schaeffer (2014):
 
 ```{r}
 bend(V2, method="lrs")
@@ -122,4 +125,4 @@ bend(V2, method="lrs")
 
 Jorjani, H., Klie. L., & Emanuelson, U. (2000). A simple method for weighted bending of genetic (co)variance matrices. *J. Dairy Sci.* 86(2): 677--679. <https://doi.org/10.3168/jds.S0022-0302(03)73646-7>
 
-Schaeffer, L. R. (2010). Modification of negative eigenvalues to create positive definite matrices and approximation of standard errors of correlation estimates. Available at: <http://animalbiosciences.uoguelph.ca/~lrs/piksLRS/PDforce.pdf>
+Schaeffer, L. R. (2014). Making covariance matrices positive definite. Available at: <http://animalbiosciences.uoguelph.ca/~lrs/ELARES/PDforce.pdf>
