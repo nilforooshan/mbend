@@ -14,7 +14,7 @@ bend(
 )
 }
 \arguments{
-\item{inmat}{: The \code{matrix} to be bended.}
+\item{inmat}{: The \code{matrix} to be bent.}
 
 \item{wtmat}{: The weight \code{matrix} for weighted bending. If no input is provided, the unweighted method (default) is used.}
 
@@ -22,19 +22,47 @@ bend(
 
 \item{max.iter}{: Maximum number of iterations. If no input is provided, default = 10000.}
 
-\item{small.positive}{: A small positive value replacing smaller eigenvalues. If no input is provided, default = 0.0001.}
+\item{small.positive}{: Eigenvalues smaller than this value are replaced with this value. If no input is provided, default = 0.0001.}
 
 \item{method}{: \code{"hj"} (Jorjani et al., 2003) or \code{"lrs"} (Schaeffer, 2014), default = \code{"hj"}}
 }
 \value{
-bended : The output bended \code{matrix}.
+bent : The bent \code{matrix}.
+
+init.ev : Eigenvalues of the initial (\code{inmat}) matrix.
+
+final.ev : Eigenvalues of the \code{bent} matrix.
+
+min.dev : \code{min(bent - inmat)}.
+
+max.dev : \code{max(bent - inmat)}.
+
+loc.min.dev : Location (indices) of \code{min.dev} element.
+
+loc.max.dev : Location (indices) of \code{max.dev} element.
+
+ave.dev : Average deviation (\code{bent - inmat}) of the upper triangle elements (excluding diagonal elements for correlation matrices).
+
+AAD : Average absolute deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of \code{bent} and \code{inmat}.
+
+Cor : Correlation between the upper triangle elements (excluding diagonal elements for correlation matrices) of \code{bent} and \code{inmat}.
+
+RMSD : Root of mean squared deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of \code{bent} and \code{inmat}.
+
+w_gt_0 : Number of weight elements greater than 0, in the upper triangle of \code{wtmat} (for weighted bending).
+
+wAAD : Weighted \code{AAD} (for weighted bending).
+
+wCor : Weighted \code{Cor} (for weighted bending).
+
+wRMSD : Weighted \code{RMSD} (for weighted bending).
 }
 \description{
-Bending a non-positive-definite matrix to positive-definite, using weighted or unweighted methods.
+Bending a symmetric non-positive-definite matrix to positive-definite, using weighted or unweighted methods.
 }
 \examples{
 # Test data
-V = matrix(nrow=5, ncol=5, c( # matrix to be bended
+V = matrix(nrow=5, ncol=5, c( # matrix to be bent
 100,  95,  80,  40,  40,
  95, 100,  95,  80,  40,
  80,  95, 100,  95,  80,

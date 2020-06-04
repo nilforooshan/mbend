@@ -1,8 +1,8 @@
 #' @title Matrix bending to positive-definite
 #'
-#' @description Bending a non-positive-definite matrix to positive-definite, using weighted or unweighted methods.
+#' @description Bending a symmetric non-positive-definite matrix to positive-definite, using weighted or unweighted methods.
 #'
-#' @param inmat : The \code{matrix} to be bended.
+#' @param inmat : The \code{matrix} to be bent.
 #'
 #' @param wtmat : The weight \code{matrix} for weighted bending. If no input is provided, the unweighted method (default) is used.
 #'
@@ -10,15 +10,43 @@
 #'
 #' @param max.iter : Maximum number of iterations. If no input is provided, default = 10000.
 #'
-#' @param small.positive : A small positive value replacing smaller eigenvalues. If no input is provided, default = 0.0001.
+#' @param small.positive : Eigenvalues smaller than this value are replaced with this value. If no input is provided, default = 0.0001.
 #'
 #' @param method : \code{"hj"} (Jorjani et al., 2003) or \code{"lrs"} (Schaeffer, 2014), default = \code{"hj"}
 #'
-#' @return bended : The output bended \code{matrix}.
+#' @return bent : The bent \code{matrix}.
+#'
+#' @return init.ev : Eigenvalues of the initial (\code{inmat}) matrix.
+#'
+#' @return final.ev : Eigenvalues of the \code{bent} matrix.
+#'
+#' @return min.dev : \code{min(bent - inmat)}.
+#'
+#' @return max.dev : \code{max(bent - inmat)}.
+#'
+#' @return loc.min.dev : Location (indices) of \code{min.dev} element.
+#'
+#' @return loc.max.dev : Location (indices) of \code{max.dev} element.
+#'
+#' @return ave.dev : Average deviation (\code{bent - inmat}) of the upper triangle elements (excluding diagonal elements for correlation matrices).
+#'
+#' @return AAD : Average absolute deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of \code{bent} and \code{inmat}.
+#'
+#' @return Cor : Correlation between the upper triangle elements (excluding diagonal elements for correlation matrices) of \code{bent} and \code{inmat}.
+#'
+#' @return RMSD : Root of mean squared deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of \code{bent} and \code{inmat}.
+#'
+#' @return w_gt_0 : Number of weight elements greater than 0, in the upper triangle of \code{wtmat} (for weighted bending).
+#'
+#' @return wAAD : Weighted \code{AAD} (for weighted bending).
+#'
+#' @return wCor : Weighted \code{Cor} (for weighted bending).
+#'
+#' @return wRMSD : Weighted \code{RMSD} (for weighted bending).
 #'
 #' @examples
 #' # Test data
-#' V = matrix(nrow=5, ncol=5, c( # matrix to be bended
+#' V = matrix(nrow=5, ncol=5, c( # matrix to be bent
 #' 100,  95,  80,  40,  40,
 #'  95, 100,  95,  80,  40,
 #'  80,  95, 100,  95,  80,
@@ -64,30 +92,27 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
   if(!is.matrix(inmat)) stop("inmat object is not a matrix.")
   if(!identical(rownames(inmat), colnames(inmat))) stop("rownames and colnames of the input matrix are not identical.")
   if(!isSymmetric(inmat)) stop("The matrix is asymmetric.")
-  bended = inmat
-  eigenval = eigen(bended, symmetric=TRUE)$values
+  bent = inmat
+  eigenval = eigen(bent, symmetric=TRUE)$values
+  N = nrow(inmat)
   # Report what you've got.
   if(missing(wtmat)) {
     message("Unweighted bending")
+    wtmat = matrix(1, nrow=N, ncol=N)
   } else {
     message("Weighted bending")
+    if(!is.logical(reciprocal)) stop("reciprocal should be a logical variable.")
     message("reciprocal = ", reciprocal)
+    if(!is.matrix(wtmat)) stop("wtmat object is not a matrix.")
+    if(!identical(rownames(wtmat), colnames(wtmat))) stop("rownames and colnames of the weight matrix are not identical.")
+    if(!isSymmetric(wtmat)) stop("The weight matrix is asymmetric.")
+    if(ncol(inmat)!=ncol(wtmat)) stop("The matrices are incompatible in size.")
+    if(length(wtmat[wtmat <0]) > 0) stop("Found negative elements in the weight matrix.")
   }
   message("max.iter = ", max.iter)
   if(method=="hj") message("small.positive = ", small.positive)
   message("method = ", method)
-  if(length(eigenval[eigenval<=0]) > 0) { # If non-PD
-    N = nrow(inmat)
-    if(missing(wtmat)) {
-      wtmat = matrix(1, nrow=N, ncol=N)
-    } else {
-      if(!is.matrix(wtmat)) stop("wtmat object is not a matrix.")
-      if(!identical(rownames(wtmat), colnames(wtmat))) stop("rownames and colnames of the weight matrix are not identical.")
-      if(!isSymmetric(wtmat)) stop("The weight matrix is asymmetric.")
-      if(ncol(inmat)!=ncol(wtmat)) stop("The matrices are incompatible in size.")
-      if(length(wtmat[wtmat <0]) > 0) stop("Found negative elements in the weight matrix.")
-    }
-    if(!is.logical(reciprocal)) stop("reciprocal should be a logical variable.")
+  if(min(eigenval) < 0) { # If non-PD
     # Get reciprocal of the weighting factors if needed
     if(reciprocal) {
       for(i in 1:nrow(wtmat))
@@ -98,34 +123,24 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
         }
       }
     }
-	# Check if inmat is a correlation matrix
+    # Check if inmat is a correlation matrix
     correl = FALSE
     if(identical(diag(inmat), rep(1, N))) {
-	  message("Found a correlation matrix.")
-	  correl = TRUE
+      message("Found a correlation matrix.")
+      correl = TRUE
       diag(wtmat) = 0
-	}
-	message("Initial eigenvalues:")
-    for(i in eigenval) message("  ", i)
+    }
+    init.ev = eigenval
     wtmat = wtmat/max(wtmat)
     if(!method %in% c("hj","lrs")) stop("Use method \"hj\" or \"lrs\".")
-    eigenvec = eigen(bended, symmetric=TRUE)$vectors
+    eigenvec = eigen(bent, symmetric=TRUE)$vectors
     m = length(eigenval[eigenval < 0])
     i = 0
     while(i < max.iter & m > 0)
     {
       # Updating eigenvalues
       if(method=="hj") {
-        if(small.positive <= 0 | small.positive >= 1) stop("0 < small.positive < 1 is not met.")
-        if(i==0) {
-          # If small.positive > smallest positive eigenvalue, replace it.
-          sp.ev = eigenval[eigenval > 0]
-          sp.ev = sp.ev[length(sp.ev)]
-          if(small.positive > sp.ev) {
-            small.positive = sp.ev/10
-            message("small.positive was overwritten by the smallest positive eigenvalue ", sp.ev, " divided by 10.")
-          }
-        }
+        if(small.positive <= 0 | small.positive > 0.1) stop("0 < small.positive <= 0.1 is not met.")
         eigenval[eigenval < small.positive] <- small.positive
       } else { # method="lrs"
         v = as.numeric(eigenval < 0)
@@ -140,9 +155,9 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
         eigenval[eigenval < 0] <- small.positive/10
       }
       UDtU = eigenvec %*% diag(eigenval) %*% t(eigenvec)
-      bended = bended - (bended - UDtU) * wtmat
-      eigenval = eigen(bended, symmetric=TRUE)$values
-      eigenvec = eigen(bended, symmetric=TRUE)$vectors
+      bent = bent - (bent - UDtU) * wtmat
+      eigenval = eigen(bent, symmetric=TRUE)$values
+      eigenvec = eigen(bent, symmetric=TRUE)$vectors
       m = length(eigenval[eigenval < 0])
       i = i + 1
       if(round(i %% 1000)==0) message(paste('Iteration =', i))
@@ -153,36 +168,39 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
       message(paste("Convergence met after", i, "iterations."))
     }
   } else {
-    message("No action was required. The matrix is positive-definite.")
+    stop("No action was required. The matrix is positive-definite.")
   }
-  message("Final eigenvalues:")
-  for(i in eigenval) message("  ", i)
-  dev = bended - inmat
-  AD = abs(dev)
-  minAD = which(AD==min(AD), arr.ind=TRUE)[1,]
-  maxAD = which(AD==max(AD), arr.ind=TRUE)[1,]
+  dev = bent - inmat
+  loc.min.dev = which(dev==min(dev), arr.ind=TRUE)[1,]
+  loc.max.dev = which(dev==max(dev), arr.ind=TRUE)[1,]
   if(correl) {
     dev = dev[upper.tri(dev, diag=FALSE)]
-	AD = AD[upper.tri(AD, diag=FALSE)]
-	w = wtmat[upper.tri(wtmat, diag=FALSE)]
-	cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=FALSE)], V2=bended[upper.tri(bended, diag=FALSE)])
-	message("Statistics excluding diagonal elements:")
+    w = wtmat[upper.tri(wtmat, diag=FALSE)]
+    cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=FALSE)], V2=bent[upper.tri(bent, diag=FALSE)])
   } else {
     dev = dev[upper.tri(dev, diag=TRUE)]
-	AD = AD[upper.tri(AD, diag=TRUE)]
-	w = wtmat[upper.tri(wtmat, diag=TRUE)]
-	cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=TRUE)], V2=bended[upper.tri(bended, diag=TRUE)])
+    w = wtmat[upper.tri(wtmat, diag=TRUE)]
+    cor.dat = data.frame(V1=inmat[upper.tri(inmat, diag=TRUE)], V2=bent[upper.tri(bent, diag=TRUE)])
   }
-  message("Range of deviation = ", min(dev), " ", max(dev))
-  message("Upper.tri average deviation = ", mean(dev))
-  message("Minimum absolute deviation = ", min(AD), " [", minAD[1], ",", minAD[2], "]")
-  message("Maximum absolute deviation = ", max(AD), " [", maxAD[1], ",", maxAD[2], "]")
-  message("Upper.tri average absolute deviation = ", mean(AD))
-  message("Upper.tri correlation = ", cor(cor.dat)[1,2])
+  outlist = list(bent = bent,
+                 init.ev = init.ev,
+                 final.ev = eigenval,
+                 min.dev = min(dev),
+                 max.dev = max(dev),
+                 loc.min.dev = loc.min.dev,
+                 loc.max.dev = loc.max.dev,
+                 ave.dev = mean(dev),
+                 AAD = mean(abs(dev)),
+                 Cor = cor(cor.dat)[1,2],
+                 RMSD = sqrt(mean(dev^2)))
   if(any(!w %in% 0:1)) {
-    message(length(w), " Upper.tri elements; for the ", length(w[w>0]), " elements that are not set to constant:")
-    message("  Upper.tri weighted average absolute deviation = ", sum(AD[w>0]/w[w>0])/sum(1/w[w>0]))
-    message("  Upper.tri weighted correlation = ", cov.wt(cor.dat[w>0,], wt=1/w[w>0], cor=TRUE)$cor[1,2])
+    dev = dev[w > 0]
+    cor.dat = cor.dat[w > 0,]
+    w = w[w > 0]
+    outlist[["w_gt_0"]] = length(w)
+    outlist[["wAAD"]] = sum(abs(dev/w))/sum(1/w)
+    outlist[["wCor"]] = cov.wt(cor.dat, wt=1/w, cor=TRUE)$cor[1,2]
+    outlist[["wRMSD"]] = sqrt(sum((dev/w)^2)/sum(w^-2))
   }
-  return(bended)
+  return(outlist)
 }

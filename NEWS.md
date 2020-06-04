@@ -24,3 +24,9 @@
 * Reporting the average and the range of deviations
 * Statistical reports for correlation matrices do not include diagonal elements.
 * Updated README.md for changes in the previous and the current versions.
+
+## Version: 1.3.0
+
+* Different statistics are obtained for bending performance.
+* The statistics became a part of a list output.
+* `small.positive` is not being overwritten anymore if it is greater than the smallest positive eigenvalue.

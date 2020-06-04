@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 *Bending non-positive-definite (symmetric) matrices to positive-definite, using weighted and unweighted methods*
 
-The `mbend` package is used for bending a non-positive-definite matrix to a positive-definite (PD) matrix. For a matrix to be invertible, it has to be PD. The methods of Jorjani et al. (2003) and Schaeffer (2014) are used in this package. The unweighted method of Schaeffer (2014) is also extended to weighted bending, with the possibility of choosing between unweighted and weighted bending.
+The `mbend` package is used for bending symmetric non-positive-definite matrices to positive-definite (PD). For a matrix to be invertible, it has to be PD. The methods of Jorjani et al. (2003) and Schaeffer (2014) are used in this package. The unweighted method of Schaeffer (2014) is also extended to weighted bending, with the possibility of choosing between unweighted and weighted bending.
 
 ## Application
 
@@ -34,7 +34,7 @@ Start with loading the package library:
 library(mbend)
 ```
 
-Consider the following non-PD matrix (Jorjani et al., 2003):
+Consider the following non-PD covariance matrix (Jorjani et al., 2003):
 
 ```{r}
 V = matrix(nrow=5, ncol=5, c(
@@ -51,13 +51,27 @@ The following command can be used to bend matrix `V` to a PD matrix:
 bend(V)
 ```
 
-The above command is equivalent to `bend(inmat=V)`, where `inmat` is the argument that takes the matrix to be bended, or the following command:
+The above command is equivalent to `bend(inmat=V)`, where `inmat` is the argument that takes the matrix to be bent, or the following command:
 
 ```{r, eval=FALSE}
 bend(V, max.iter=10000, small.positive=0.0001, method="hj")
 ```
 
 This runs the unweighted bending method of Jorjani et al. (2003) (`method="hj"`), with maximum 10000 number of iterations (`max.iter=10000`), and eigenvalues smaller than 0.0001 are replaced with this small positive value (`small.positive=0.0001`). Providing the default parameters, the corresponding arguments can be omitted (e.g., `bend(V)`).
+
+The output object is a list of several items, listed below:
+
+* bent : The bent `matrix`.
+* init.ev : Eigenvalues of the initial (`inmat`) matrix.
+* final.ev : Eigenvalues of the `bent` matrix.
+* min.dev : `min(bent - inmat)`.
+* max.dev : `max(bent - inmat)`.
+* loc.min.dev : Location (indices) of `min.dev` element.
+* loc.max.dev : Location (indices) of `max.dev` element.
+* ave.dev : Average deviation (`bent - inmat`) of the upper triangle elements (excluding diagonal elements for correlation matrices).
+* AAD : Average absolute deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
+* Cor : Correlation between the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
+* RMSD : Root of mean squared deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
 
 There might be different precision involved with different elements of a non-PD matrix. In this case, a weighted bending is recommended. Jorjani et al. (2003) used the reciprocal of the number data points in common between pairs of variables, as weights. Considering the following matrix for the number of data points in common between variables (Jorjani et al., 2003):
 
@@ -70,7 +84,7 @@ W = matrix(nrow=5, ncol=5, c(
    200,   50,   20,  200, 1000))
 ```
 
-Matrix `V` is bended using the following command:
+Matrix `V` is bent using the following command:
 
 ```{r}
 bend(inmat=V, wtmat=W, reciprocal=TRUE)
@@ -85,7 +99,12 @@ W2 = W; W2[1:2, 1:2] = 0
 bend(V, W2, reciprocal=TRUE)
 ```
 
-As it can be seen in the report, 3 of the 15 upper triangle elements are set to constant.
+For weighted bending, we get extra statistics in the output:
+
+* `w_gt_0` : Number of weight elements greater than 0, in the upper triangle of `wtmat` (for weighted bending).
+* `wAAD` : Weighted `AAD` (for weighted bending).
+* wCor : Weighted `Cor` (for weighted bending).
+* wRMSD : Weighted `RMSD` (for weighted bending).
 
 To bend `V` using the method of Schaeffer (2014):
 
@@ -106,7 +125,7 @@ V2 = cov2cor(V)
 bend(V2, W, reciprocal=TRUE)
 ```
 
-As indicated above, diagonal elements are not used in the reporting statistics. This happens to correlation matrices.
+For correlation matrices, diagonal elements are not used in obtaining the statistics.
 Because the argument `method` is not provided, the default parameter `"hj"` is used. To do the same using the method of Schaeffer (2014):
 
 ```{r}
