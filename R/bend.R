@@ -125,7 +125,7 @@ bend = function(inmat, wtmat, reciprocal=FALSE, max.iter=10000, small.positive=0
     }
     # Check if inmat is a correlation matrix
     correl = FALSE
-    if(identical(diag(inmat), rep(1, N))) {
+    if(identical(unname(diag(inmat)), rep(1, N))) {
       message("Found a correlation matrix.")
       correl = TRUE
       diag(wtmat) = 0

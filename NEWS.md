@@ -30,3 +30,8 @@
 * Different statistics are obtained for bending performance.
 * The statistics became a part of a list output.
 * `small.positive` is not being overwritten anymore if it is greater than the smallest positive eigenvalue.
+
+## Version: 1.3.1
+
+* Bug fixed: Matrices with given colnames and rownames could not be a correlation matrix.
+

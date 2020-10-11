@@ -2,4 +2,3 @@
 
 export(bend)
 importFrom("stats", "cor", "cov.wt")
-importFrom("stats", "cor", "cov.wt")
