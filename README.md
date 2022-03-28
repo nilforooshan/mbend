@@ -1,3 +1,11 @@
+[![cran-version](https://www.r-pkg.org/badges/version/mbend)](https://cran.r-project.org/package=mbend)
+[![cran-downloads-total](https://cranlogs.r-pkg.org/badges/grand-total/mbend?color=green)](https://cran.r-project.org/package=mbend)
+[![cran-downloads-month](https://cranlogs.r-pkg.org/badges/last-month/mbend?color=green)](https://cran.r-project.org/package=mbend)
+[![cran-downloads-week](https://cranlogs.r-pkg.org/badges/last-week/mbend?color=green)](https://cran.r-project.org/package=mbend)
+[![github-release](https://img.shields.io/github/release/nilforooshan/mbend.svg)](https://github.com/nilforooshan/mbend)
+[![github-license](https://img.shields.io/github/license/nilforooshan/mbend.svg)](https://github.com/nilforooshan/mbend/blob/master/LICENSE)
+[![github-contributors](https://img.shields.io/github/contributors/nilforooshan/mbend.svg)](https://github.com/nilforooshan/mbend/graphs/contributors/)
+
 # mbend: An R package for bending non-positive-definite matrices to positive-definite
 
 Mohammad Ali Nilforooshan
