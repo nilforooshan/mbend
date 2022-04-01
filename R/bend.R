@@ -44,6 +44,8 @@
 #'
 #' @return wRMSD : Weighted \code{RMSD} (for weighted bending).
 #'
+#' @importFrom stats cor cov.wt
+#'
 #' @examples
 #' # Test data
 #' V = matrix(nrow=5, ncol=5, c( # matrix to be bent

@@ -9,7 +9,7 @@ License: GPL-3
 LazyData: true
 URL: https://github.com/nilforooshan/mbend
 BugReports: https://github.com/nilforooshan/mbend/issues
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Encoding: UTF-8
 Repository: GitHub
 Suggests: knitr, rmarkdown
