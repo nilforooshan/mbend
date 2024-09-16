@@ -1,4 +1,4 @@
-[![cran-version](https://www.r-pkg.org/badges/version/mbend)](https://cran.r-project.org/package=mbend)
+[![cran-version-last-release](https://www.r-pkg.org/badges/version-last-release/mbend)](https://cran.r-project.org/package=mbend)
 [![cran-downloads-total](https://cranlogs.r-pkg.org/badges/grand-total/mbend?color=green)](https://cran.r-project.org/package=mbend)
 [![cran-downloads-month](https://cranlogs.r-pkg.org/badges/last-month/mbend?color=green)](https://cran.r-project.org/package=mbend)
 [![cran-downloads-week](https://cranlogs.r-pkg.org/badges/last-week/mbend?color=green)](https://cran.r-project.org/package=mbend)
