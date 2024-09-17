@@ -1,3 +1,4 @@
+[![R-CMD-check](https://github.com/nilforooshan/mbend/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nilforooshan/mbend/actions/workflows/R-CMD-check.yaml)
 [![cran-version-last-release](https://www.r-pkg.org/badges/version-last-release/mbend)](https://cran.r-project.org/package=mbend)
 [![cran-downloads-total](https://cranlogs.r-pkg.org/badges/grand-total/mbend?color=green)](https://cran.r-project.org/package=mbend)
 [![cran-downloads-month](https://cranlogs.r-pkg.org/badges/last-month/mbend?color=green)](https://cran.r-project.org/package=mbend)
@@ -16,7 +17,7 @@ Mohammad Ali Nilforooshan
 
 ## Description
 
-*Bending non-positive-definite (symmetric) matrices to positive-definite, using weighted and unweighted methods*
+_Bending non-positive-definite (symmetric) matrices to positive-definite, using weighted and unweighted methods_
 
 The `mbend` package is used for bending symmetric non-positive-definite matrices to positive-definite (PD). For a matrix to be invertible, it has to be PD. The methods of Jorjani et al. (2003) and Schaeffer (2014) are used in this package. The unweighted method of Schaeffer (2014) is also extended to weighted bending, with the possibility of choosing between unweighted and weighted bending.
 
@@ -99,17 +100,17 @@ This runs the unweighted bending method of Jorjani et al. (2003) (`method="hj"`)
 
 The output object is a list of several items, listed below:
 
-* bent : The bent `matrix`.
-* init.ev : Eigenvalues of the initial (`inmat`) matrix.
-* final.ev : Eigenvalues of the `bent` matrix.
-* min.dev : `min(bent - inmat)`.
-* max.dev : `max(bent - inmat)`.
-* loc.min.dev : Location (indices) of `min.dev` element.
-* loc.max.dev : Location (indices) of `max.dev` element.
-* ave.dev : Average deviation (`bent - inmat`) of the upper triangle elements (excluding diagonal elements for correlation matrices).
-* AAD : Average absolute deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
-* Cor : Correlation between the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
-* RMSD : Root of mean squared deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
+- bent : The bent `matrix`.
+- init.ev : Eigenvalues of the initial (`inmat`) matrix.
+- final.ev : Eigenvalues of the `bent` matrix.
+- min.dev : `min(bent - inmat)`.
+- max.dev : `max(bent - inmat)`.
+- loc.min.dev : Location (indices) of `min.dev` element.
+- loc.max.dev : Location (indices) of `max.dev` element.
+- ave.dev : Average deviation (`bent - inmat`) of the upper triangle elements (excluding diagonal elements for correlation matrices).
+- AAD : Average absolute deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
+- Cor : Correlation between the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
+- RMSD : Root of mean squared deviation of the upper triangle elements (excluding diagonal elements for correlation matrices) of `bent` and `inmat`.
 
 There might be different precision involved with different elements of a non-PD matrix. In this case, a weighted bending is recommended. Jorjani et al. (2003) used the reciprocal of the number data points in common between pairs of variables, as weights. Considering the following matrix for the number of data points in common between variables (Jorjani et al., 2003):
 
@@ -253,10 +254,10 @@ bend(V, W2, reciprocal=TRUE)
 
 For weighted bending, we get extra statistics in the output:
 
-* `w_gt_0` : Number of weight elements greater than 0, in the upper triangle of `wtmat` (for weighted bending).
-* `wAAD` : Weighted `AAD` (for weighted bending).
-* wCor : Weighted `Cor` (for weighted bending).
-* wRMSD : Weighted `RMSD` (for weighted bending).
+- `w_gt_0` : Number of weight elements greater than 0, in the upper triangle of `wtmat` (for weighted bending).
+- `wAAD` : Weighted `AAD` (for weighted bending).
+- wCor : Weighted `Cor` (for weighted bending).
+- wRMSD : Weighted `RMSD` (for weighted bending).
 
 To bend `V` using the method of Schaeffer (2014):
 
@@ -543,7 +544,7 @@ bend(V2, method="lrs")
 #>
 #> $Cor
 #> [1] 0.9854043
-#> 
+#>
 #> $RMSD
 #> [1] 0.05298397
 ```
@@ -552,6 +553,6 @@ bend(V2, method="lrs")
 
 ## References
 
-Jorjani, H., Klie. L., & Emanuelson, U. (2000). A simple method for weighted bending of genetic (co)variance matrices. *J. Dairy Sci.* 86(2): 677--679. [doi:10.3168/jds.S0022-0302(03)73646-7](https://doi.org/10.3168/jds.S0022-0302(03)73646-7)
+Jorjani, H., Klie. L., & Emanuelson, U. (2000). A simple method for weighted bending of genetic (co)variance matrices. _J. Dairy Sci._ 86(2): 677--679. [doi:10.3168/jds.S0022-0302(03)73646-7](<https://doi.org/10.3168/jds.S0022-0302(03)73646-7>)
 
 Schaeffer, L. R. (2014). Making covariance matrices positive definite. Available at: <http://animalbiosciences.uoguelph.ca/~lrs/ELARES/PDforce.pdf>
